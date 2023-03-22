@@ -1,9 +1,12 @@
-import express from "express";
 import Joi from "joi";
 import products from "../models/products";
 
 const productSchema = Joi.object({
-    name: Joi.string().required()
+    name:Joi.string().required(),
+    price:Joi.number().required(),
+    desc:Joi.string(),
+    status:Joi.string(),
+    quanty:Joi.string()
 })
 
 export const getAll = async(req,res)=>{
@@ -17,6 +20,12 @@ export const getAll = async(req,res)=>{
 export const create = async(req,res)=>{
     try{
         const body = req.body
+        const { error } = productSchema.validate(body)
+        if(error){
+            res.status(200).json({
+                mess:error.details[0].message
+            })
+        }
         const data = await products.create(body)
         if(!data){
             return res.status(404).json({message: "Error creating product"})
@@ -45,6 +54,12 @@ export const update = async(req,res)=>{
     try{
         const id = req.params.id
         const body = req.body
+        const { error } = productSchema.validate(body)
+        if(error){
+            res.status(200).json({
+                mess:error.details[0].message
+            })
+        }
         const data = await products.findByIdAndUpdate({_id:id},body,{new:true})
         if(!data){
             return res.status(404).json({message: "Can't update product"})
